@@ -1,0 +1,3160 @@
+/* ---- swayjoy — Global Styles (light theme) ---- */
+
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --surface: #f9fafb;
+  --border: #e5e7eb;
+  --text: #111827;
+  --muted: #6b7280;
+  --accent: #2563eb;
+  --accent-soft: #eff6ff;
+  --danger: #dc2626;
+  --ok: #16a34a;
+
+  /* ---- 卡通游戏 UI 令牌（平台级，2026-08-29） ---- */
+  --candy-teal: #7be5e0;
+  --candy-teal-deep: #2fa8a6;
+  --candy-yellow: #f3f269;
+  --candy-yellow-deep: #d9c84a;
+  --candy-coral: #ef9482;
+  --candy-coral-deep: #c96a56;
+  --candy-ink: #163a47; /* 亮底上的深青字 */
+  --candy-ink-warm: #5a4a00; /* 黄底上的深黄褐字 */
+  --candy-font: "Tilt Neon", "Jost", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+    "PingFang SC", "Microsoft YaHei", sans-serif;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* 全局段落：Jost 字体 + 段首间距（mt-4 = 1rem）+ 两端对齐 */
+p {
+  font-family: Jost, "Jost Fallback: Arial", sans-serif;
+  margin-top: 1rem;
+  text-align: justify;
+}
+
+/* ---- Default Layout: header / sidebar / main / footer ---- */
+
+.app-layout {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+  position: relative; /* 作为悬浮顶栏的定位基准 */
+}
+
+/* 半透明磨砂玻璃顶栏：脱离文档流悬浮在视口顶部（覆盖式），滚动内容从其下穿过被 backdrop blur 磨砂 */
+.top-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30; /* 高于 .content 内容与侧栏(20)/抽屉遮罩(19)；相册遮罩(1000)仍在其上 */
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.7);
+  background: #67cfd014;
+  backdrop-filter: blur(30px) saturate(160%);
+}
+
+/* 顶栏居中的当前页标题（内容下滚 >200px 后由 StickyHeaderTitle 显示，H1 副本，纯视觉） */
+.top-header-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 56%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  font-family: Tilt Neon, "Tilt Neon Fallback: Arial", sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: #00bfba;
+  line-height: 1.2;
+}
+
+@media (max-width: 767px) {
+  /* 窄屏隐藏居中页标题（≤767px 抽屉菜单 + Logo 已占左侧空间，居中标题会与之重叠） */
+  .top-header-title {
+    display: none;
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--text);
+}
+
+/* 移动端抽屉菜单按钮（三横线汉堡）：桌面隐藏，≤767px 显示在 Logo 左侧 */
+.menu-btn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  margin-right: 8px;
+  padding: 10px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  transition: background 0.15s ease;
+}
+
+.menu-btn:hover {
+  background: var(--accent-soft);
+}
+
+.menu-btn span {
+  display: block;
+  height: 3px;
+  width: 100%;
+  border-radius: 2px;
+  background: var(--text);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.menu-btn--open span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.menu-btn--open span:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-btn--open span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* 抽屉打开时的遮罩层：桌面隐藏，≤767px 显示，盖住内容区（在侧栏 z-index 之下） */
+.drawer-backdrop {
+  display: none;
+}
+
+.brand-logo {
+  height: 40px;
+  aspect-ratio: 16 / 7;
+  display: block;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-tagline {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.app-body {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+}
+
+/* 侧栏从悬浮顶栏下缘(y70)开始（桌面竖条与移动抽屉一致） */
+.side-nav {
+  position: absolute;
+  top: 70px;
+  left: 0;
+  bottom: 0;
+  z-index: 20;
+  width: 58px;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  padding: 12px 0;
+  overflow: hidden;
+  transition: width 0.22s ease, box-shadow 0.22s ease;
+}
+
+.side-nav:hover {
+  width: 200px;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.08);
+}
+
+.side-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 46px;
+  padding: 0 17px;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+  font-size: 15px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.nav-item:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.nav-item.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: block;
+  object-fit: contain;
+}
+
+.nav-label {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.side-nav:hover .nav-label {
+  opacity: 1;
+}
+
+.main-area {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  margin-left: 58px;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-top: 70px; /* 顶部让位给悬浮顶栏：首屏内容从顶栏下缘开始，滚动时内容从顶栏下穿过被磨砂模糊 */
+  scroll-padding-top: 70px; /* scrollIntoView 锚点跳转时同样让出顶栏高度，避免目标被悬浮顶栏遮住 */
+}
+
+.site-footer {
+  height: 80px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 24px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.footer-links {
+  display: flex;
+  gap: 20px;
+}
+
+.footer-link {
+  color: var(--muted);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-link:hover {
+  color: var(--text);
+}
+
+.footer-copy {
+  color: var(--muted);
+}
+
+/* ---- Placeholder pages ---- */
+
+.placeholder-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+}
+
+.placeholder-page h1 {
+  font-size: 38px;
+  font-family: Tilt Neon, "Tilt Neon Fallback: Arial", sans-serif;
+  font-weight: 700;
+  color: #00bfba;
+  margin: 0 0 12px;
+}
+
+.placeholder-page p {
+  color: var(--muted);
+  font-size: 15px;
+  margin: 0;
+}
+
+/* ---- Home Page ---- */
+
+.home-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* /motion-games 分类页根容器：与 .home-page 同为 flex column（hero / .games / .home-story 三个全宽板块自上而下堆叠），
+   其中的 .games 网格与首页共用同一套样式与共享游戏目录数据 */
+.category-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* hero：垂直渐变背景（顶部浅薄荷青 → 底部纯白，与下方 .games 白底无缝衔接）+ 滚动半透明青点点阵 */
+.hero {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 46px 24px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #cbe8e4 0%, #e6f7f4 45%, #ffffff 100%);
+}
+
+.hero-title {
+  position: relative;
+  z-index: 1;
+  font-size: 38px;
+  font-family: Tilt Neon, "Tilt Neon Fallback: Arial", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 0 0 16px;
+  color: #00bfba;
+}
+
+.hero-subtitle {
+  position: relative;
+  z-index: 1;
+  font-size: 16px;
+  color: var(--muted);
+  max-width: 700px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* hero 滚动点阵背景层（纯装饰，aria-hidden）：
+   点阵用 radial-gradient 平铺（30px 一格），40s linear infinite reverse 循环位移一格宽实现无缝滚动；
+   点阵底色用 transparent 让下层 hero 渐变透出，并向下淡出 —— 底部保持纯白与下方 .games 白底无缝 */
+.hero-dots {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(#00bfba80 2px, transparent 0);
+  background-size: 30px 30px;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
+  animation: hero-dots-scroll 2s linear infinite reverse;
+}
+
+@keyframes hero-dots-scroll {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 30px 30px;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero {
+    padding: 30px 20px 40px;
+  }
+}
+
+/* 系统开启“减少动态效果”时停掉点阵滚动（背景渐变保留） */
+@media (prefers-reduced-motion: reduce) {
+  .hero-dots {
+    animation: none;
+  }
+}
+
+/* ---- About Page ---- */
+
+.about-page {
+  flex: 1;
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+}
+
+.about-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.about-title {
+  font-size: 38px;
+  font-family: Tilt Neon, "Tilt Neon Fallback: Arial", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #00bfba;
+  margin: 0 0 14px;
+}
+
+.about-subtitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--candy-teal-deep);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.about-section {
+  margin-top: 48px;
+}
+
+.about-section h2 {
+  font-family: Tilt Neon, "Tilt Neon Fallback: Arial", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--candy-teal-deep);
+  letter-spacing: 0.5px;
+  margin: 0 0 16px;
+}
+
+.about-section p {
+  margin-top: 10px;
+  line-height: 1.9;
+  text-align: justify;
+}
+
+.about-section strong {
+  color: var(--candy-teal-deep);
+  font-weight: 700;
+}
+
+.about-section code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  color: var(--candy-teal-deep);
+  background: rgba(123, 229, 224, 0.18);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.about-quote {
+  margin: 22px 0 2px;
+  padding: 20px 24px;
+  background: rgba(31, 138, 134, 0.96);
+  border-radius: 16px;
+  color: #ffe62f;
+  font-weight: 700;
+  font-size: 16.5px;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.about-quote strong {
+  color: inherit;
+}
+
+.quote-author {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: rgba(255, 230, 47, 0.9);
+}
+
+/* Holy Yang 图片卡：通栏（与文章同宽），深青底；默认左图（60%）+ 右描述（40%），`.about-card--reverse` 反向（描述左、图右） */
+.about-card {
+  display: flex;
+  align-items: center;
+  margin: 30px 0 4px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #17635f;
+  border: 3px solid var(--candy-teal);
+  box-shadow: 0 6px 0 rgba(31, 138, 134, 0.18);
+}
+
+.about-card__media {
+  width: 60%;
+  flex-shrink: 0;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.about-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+  will-change: transform;
+}
+
+.about-card:hover .about-card__media img {
+  transform: rotate(10deg) scale(1.2);
+}
+
+.about-card figcaption {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 30px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.8;
+  text-align: justify;
+}
+
+.about-card--reverse {
+  flex-direction: row-reverse;
+}
+
+@media (max-width: 767px) {
+  .about-card {
+    flex-direction: column;
+  }
+
+  .about-card__media {
+    width: 100%;
+  }
+
+  .about-card figcaption {
+    padding: 20px 22px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 767px) {
+  .about-title {
+    font-size: 26px;
+  }
+
+  .about-subtitle {
+    font-size: 16px;
+  }
+
+  .about-section h2 {
+    font-size: 20px;
+  }
+}
+
+/* ---- Legal Pages（Privacy Policy / Terms of Service） ---- */
+
+.legal-page {
+  flex: 1;
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+}
+
+.legal-header {
+  margin-bottom: 8px;
+}
+
+.legal-title {
+  font-size: 38px;
+  font-family: Tilt Neon, "Tilt Neon Fallback: Arial", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #00bfba;
+  margin: 0 0 12px;
+}
+
+.legal-updated {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--candy-teal-deep);
+  margin: 0;
+}
+
+.legal-lead {
+  margin-top: 20px;
+  font-size: 16.5px;
+  line-height: 1.8;
+}
+
+.legal-section {
+  margin-top: 40px;
+}
+
+.legal-section h2 {
+  font-family: Tilt Neon, "Tilt Neon Fallback: Arial", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--candy-teal-deep);
+  letter-spacing: 0.5px;
+  margin: 0 0 14px;
+}
+
+.legal-section p {
+  margin-top: 10px;
+  line-height: 1.8;
+}
+
+.legal-section ul,
+.legal-section ol {
+  margin: 12px 0 0;
+  padding-left: 24px;
+}
+
+.legal-section li {
+  margin-top: 7px;
+  line-height: 1.8;
+}
+
+.legal-section strong {
+  color: var(--candy-teal-deep);
+  font-weight: 700;
+}
+
+.legal-section a,
+.legal-email {
+  color: var(--candy-teal-deep);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+  .legal-title {
+    font-size: 26px;
+  }
+
+  .legal-section h2 {
+    font-size: 20px;
+  }
+}
+
+/* ---- 游戏列表（首页与 /motion-games 分类页共用） ---- */
+
+/* width:100% 必须有——.games 是 .home-page / .category-page（flex column）的 flex 子项，
+   auto margin 会让交叉轴 stretch 失效、收缩到内容宽度，加 width:100% 才能撑满到 max-width */
+.games {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 64px;
+}
+
+.games-heading {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: #02bfba;
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* 窄屏每行 3 个，低于 480px 每行 2 个 */
+@media (max-width: 767px) {
+  .game-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 479px) {
+  .game-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 手机屏幕 hero 标题缩小（桌面默认 38px，由「全站 H1」规则设定） */
+@media (max-width: 767px) {
+  .hero-title {
+    font-size: 24px;
+  }
+}
+
+.game-card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.game-card:hover {
+  border-color: #c7d2fe;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+/* 4:3 高度用 padding-top 75% 撑开（flex 子项 + 懒加载图片下 aspect-ratio 高度会塌成 0，
+   改用 padding 撑高可预占空间，杜绝图片加载后的布局偏移 / CLS） */
+.game-thumb {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-top: 75%;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.game-thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.game-title {
+  font-size: 16px;
+  font-weight: 650;
+  margin: 0;
+  padding: 12px 14px 4px;
+  color: var(--text);
+}
+
+/* 游戏卡片两行简介：clamp 固定两行，覆盖全局 p 的 mt-4 / justify（窄卡片左对齐更自然） */
+.game-card-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0 14px 12px;
+  text-align: left;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---- Home 内容区（游戏列表下方，丰富内容块） ---- */
+
+/* home-story 全屏宽；内容宽度约束统一由 .story-content 控制（各模块可自行做全屏背景） */
+.home-story {
+  width: 100%;
+}
+
+.story-section {
+  width: 100%;
+  margin-top: 56px;
+}
+
+.story-content {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.story-title {
+  font-family: Tilt Neon, "Tilt Neon Fallback: Arial", sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: var(--candy-teal-deep);
+  margin: 0 0 14px;
+}
+
+/* 文章署名行（E-E-A-T 作者信号）：覆盖全局 p 的 mt-4 / justify，作者名链到 About 页 */
+.story-byline {
+  margin: -4px 0 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  letter-spacing: 0.3px;
+  color: var(--muted);
+  text-align: left;
+}
+
+.story-byline-link {
+  color: var(--candy-teal-deep);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.story-byline-link:hover {
+  text-decoration: underline;
+}
+
+.story-section-lead {
+  margin: 0 0 22px;
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--muted);
+  text-align: justify;
+}
+
+/* 文章正文配图：.story-figure 限宽居中；.story-photo 4:3 定比 div 预占空间防 CLS，
+   img object-fit:cover 填满（源图 ~4:3）；下方 figcaption 灰字图注与图同宽 */
+.story-figure {
+  max-width: 760px;
+  margin: 8px auto 0;
+}
+
+.story-photo {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid var(--candy-teal);
+  background: var(--surface);
+}
+
+.story-photo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+  will-change: transform;
+}
+
+.story-photo:hover img {
+  transform: scale(1.1); /* hover 图片放大 10%，overflow:hidden 框内裁剪 */
+}
+
+.story-photo-caption {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* —— 内容结构块（数据带 / 列表 / 表格 / 权威引用，2026-09-08 增）——
+   首页 .home-story 与 /motion-games 长文通用：结构化块便于 AI 引擎提取引用，
+   数据均来自可核实来源（站点技术事实 / MediaPipe 文档 / WHO 体力活动简报），不虚构数字 */
+
+/* 数据带：数字卡（真实数据点，如 6 款游戏 / 21 地标 / 100% 端侧） */
+.story-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 6px 0 24px;
+}
+
+.story-stat {
+  flex: 1 1 150px;
+  min-width: 138px;
+  background: var(--surface);
+  border: 1px solid rgba(31, 138, 134, 0.28);
+  border-radius: 14px;
+  padding: 16px 12px 14px;
+  text-align: center;
+}
+
+.story-stat b {
+  display: block;
+  font-family: Tilt Neon, "Tilt Neon Fallback: Arial", sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.3px;
+  color: var(--candy-teal-deep);
+}
+
+.story-stat span {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* 结构列表：覆盖全局 p 的 justify / mt-4，浅色底圆角块 */
+.story-list {
+  margin: 0 0 24px;
+  padding: 4px 0 4px 22px;
+  list-style: disc;
+}
+
+.story-list li {
+  margin: 7px 0;
+  padding-left: 4px;
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--text);
+}
+
+.story-list li::marker {
+  color: var(--candy-teal);
+}
+
+/* 行内来源链接（outbound citation） */
+.story-ref {
+  color: var(--candy-teal-deep);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.story-ref:hover {
+  text-decoration: underline;
+}
+
+/* 对比 / 事实表格：窄屏横向滚动防溢出 */
+.story-table-scroll {
+  overflow-x: auto;
+  margin: 6px 0 24px;
+}
+
+.story-table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text);
+  background: var(--surface);
+}
+
+.story-table th,
+.story-table td {
+  border: 1px solid rgba(31, 138, 134, 0.28);
+  padding: 10px 14px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.story-table thead th {
+  background: rgba(31, 138, 134, 0.12);
+  color: var(--candy-teal-deep);
+  font-weight: 700;
+}
+
+.story-table tbody tr:nth-child(even) {
+  background: rgba(31, 138, 134, 0.05);
+}
+
+/* 权威数据引用卡：左侧 teal 竖条，来源署名行（如 WHO / MediaPipe） */
+.fact-note {
+  margin: 6px 0 24px;
+  padding: 16px 20px;
+  background: rgba(31, 138, 134, 0.08);
+  border-left: 4px solid var(--candy-teal);
+  border-radius: 0 14px 14px 0;
+  font-size: 15.5px;
+  line-height: 1.85;
+  color: var(--text);
+  text-align: justify;
+}
+
+.fact-note .fact-source {
+  display: block;
+  margin-top: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--muted);
+  text-align: left;
+}
+
+/* 开篇：上文本 + 下方动作 chips 独立一行 grid（每行 4 个） */
+.story-lead {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.story-lead-text {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.9;
+  color: var(--text);
+  text-align: justify;
+}
+
+.story-lead-chips {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  width: 100%;
+}
+
+/* 动作 chip 卡片：1:1 图标 + 下方短语 */
+.story-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px 14px;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgb(29 132 128 / 23%);
+  text-align: center;
+}
+
+/* 图标外层 1:1 div（不裁切，hover 放大可自然溢出） */
+.story-chip__icon {
+  aspect-ratio: 1 / 1;
+  width: 76px;
+}
+
+.story-chip__icon img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+  transition: transform 0.2s ease;
+  will-change: transform;
+}
+
+.story-chip:hover .story-chip__icon img {
+  transform: scale(1.1); /* hover 图标放大 10% */
+}
+
+.story-chip__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(31, 138, 134, 0.96);
+  line-height: 1.4;
+}
+
+/* 历史时间线 */
+.timeline {
+  position: relative;
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0 0 0 34px;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 6px;
+  bottom: 6px;
+  width: 4px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, var(--candy-teal), var(--candy-yellow-deep), var(--candy-coral));
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 20px;
+  padding-left: 8px;
+}
+
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -30px;
+  top: 22px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--candy-teal-deep);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px var(--candy-teal);
+}
+
+.timeline-year {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: Tilt Neon, "Tilt Neon Fallback: Arial", sans-serif;
+  color: var(--candy-ink);
+  margin-bottom: 6px;
+}
+
+.timeline-item:nth-child(1) .timeline-year { background: var(--candy-teal); }
+.timeline-item:nth-child(2) .timeline-year { background: var(--candy-yellow); }
+.timeline-item:nth-child(3) .timeline-year { background: var(--candy-coral); }
+.timeline-item:nth-child(4) .timeline-year { background: var(--candy-teal); }
+.timeline-item:nth-child(5) .timeline-year { background: var(--candy-yellow); }
+.timeline-item:nth-child(6) .timeline-year { background: var(--candy-coral); }
+.timeline-item:nth-child(7) .timeline-year { background: var(--candy-teal); }
+.timeline-item:nth-child(8) .timeline-year { background: var(--candy-yellow); }
+.timeline-item:nth-child(9) .timeline-year { background: var(--candy-coral); }
+
+/* 时间线 body 背景：与对应年份徽章同色系、但更浅（徽章色低透明度叠加在 surface 上） */
+.timeline-item:nth-child(1) .timeline-body { background: rgba(123, 229, 224, 0.16); }
+.timeline-item:nth-child(2) .timeline-body { background: rgba(243, 242, 105, 0.22); }
+.timeline-item:nth-child(3) .timeline-body { background: rgba(239, 148, 130, 0.16); }
+.timeline-item:nth-child(4) .timeline-body { background: rgba(123, 229, 224, 0.16); }
+.timeline-item:nth-child(5) .timeline-body { background: rgba(243, 242, 105, 0.22); }
+.timeline-item:nth-child(6) .timeline-body { background: rgba(239, 148, 130, 0.16); }
+.timeline-item:nth-child(7) .timeline-body { background: rgba(123, 229, 224, 0.16); }
+.timeline-item:nth-child(8) .timeline-body { background: rgba(243, 242, 105, 0.22); }
+.timeline-item:nth-child(9) .timeline-body { background: rgba(239, 148, 130, 0.16); }
+
+.timeline-body {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 18px;
+}
+
+.timeline-name {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--candy-ink);
+}
+
+.timeline-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--muted);
+  text-align: justify;
+}
+
+/* 时间线节点的 Wikipedia 引用按钮：灰色小字胶囊，外链 nofollow */
+.timeline-ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  margin-right: 8px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  background: rgba(107, 114, 128, 0.12);
+  text-decoration: none;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.timeline-ref:hover {
+  color: var(--candy-teal-deep);
+  background: rgba(123, 229, 224, 0.22);
+}
+
+/* 时间线节点照片：3 图等距一行（每张 1/3 宽），单图也不放大、占 1/3；
+   每张图外包一层 4:3 的 div（.timeline-photo）预占空间，img 内部 width:100% height:auto，避免布局偏移 */
+.timeline-photos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.timeline-photo {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 2px solid var(--candy-teal);
+  background: var(--surface);
+  cursor: zoom-in;
+}
+
+.timeline-photo img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.2s ease;
+  will-change: transform;
+}
+
+.timeline-photo:hover img {
+  transform: scale(1.1); /* hover 缩略图放大 10% */
+}
+
+/* 全屏照片相册：点击缩略图打开，左右循环浏览所有年代照片，底部展示年代/标题/描述 */
+.photo-gallery {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(9, 26, 33, 0.93);
+  padding: 40px 20px;
+  overscroll-behavior: contain;
+}
+
+.photo-gallery__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: min(1080px, 94vw);
+  margin: 0;
+  height: 100%;
+  justify-content: center;
+}
+
+.photo-gallery__stage img {
+  width: auto;
+  max-width: 86%;
+  height: auto;
+  -o-object-fit: contain;
+  object-fit: contain;
+}
+
+.photo-gallery__info {
+  width: 100%;
+  max-width: 760px;
+  padding: 16px 22px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(123, 229, 224, 0.3);
+  text-align: center;
+}
+
+.photo-gallery__era {
+  display: inline-block;
+  padding: 3px 12px;
+  margin-bottom: 8px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: Tilt Neon, "Tilt Neon Fallback: Arial", sans-serif;
+  color: var(--candy-ink);
+  background: var(--candy-teal);
+}
+
+.photo-gallery__title {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.photo-gallery__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.82);
+  text-align: justify;
+}
+
+.photo-gallery__close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(123, 229, 224, 0.5);
+  background: rgba(22, 58, 71, 0.5);
+  color: #ffffff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.photo-gallery__close:hover {
+  background: var(--candy-teal-deep);
+  transform: scale(1.08);
+}
+
+.photo-gallery__counter {
+  position: absolute;
+  top: 26px;
+  left: 26px;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.photo-gallery__nav {
+  position: absolute;
+  top: 40%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgb(123 229 224 / 27%);
+  background: rgba(22, 58, 71, 0.5);
+  color: #ffffff96;
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 4px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.photo-gallery__nav:hover {
+  background: var(--candy-teal-deep);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.photo-gallery__nav--prev {
+  left: 18px;
+}
+
+.photo-gallery__nav--next {
+  right: 18px;
+}
+
+/* 强调"当下"节点（2020s 之后） */
+.timeline-item--now .timeline-body {
+  border-color: var(--candy-teal);
+  /* 背景不再覆盖：Today 跟随其珊瑚色徽章的浅色背景（见 nth-child(9) 规则） */
+}
+
+.timeline-item--now .timeline-name {
+  color: var(--candy-teal-deep);
+}
+
+/* 深青 band（无需设备） */
+/* 全屏宽深青带：背景通栏，内容由 .story-content 居中约束 */
+.story-section--band {
+  margin-top: 64px;
+  background: linear-gradient(92deg, #005669 0%, #12cac2 100%);
+  padding: 36px 0 32px;
+}
+
+.story-section--band .story-title {
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.band-text {
+  margin: 0 0 24px;
+  font-size: 16px;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.92);
+  text-align: justify;
+}
+
+.no-device-photo {
+  aspect-ratio: 4 / 3;
+  max-width: 760px;
+  margin: 0 0 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid var(--candy-teal);
+  background: var(--surface);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.no-device-photo img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.2s ease;
+  will-change: transform;
+}
+
+.no-device-photo:hover img {
+  transform: scale(1.1);
+}
+
+.band-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 30px;
+}
+
+.band-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgb(255 255 255 / 76%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 14px;
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.band-card__icon {
+  flex-shrink: 0;
+  width: 72px;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.band-card__icon img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.band-card__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.band-card__title {
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: #ff8e00;
+}
+
+.band-card__text {
+  margin-top: 4px;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.55;
+  color: rgba(31, 138, 134, 0.96);
+  text-align: left;
+}
+
+/* 能力卡（Powered by MediaPipe）：顶部通栏 4:3 图 + 居中标题 + 两端对齐描述；好处卡（why）保持纯文字 */
+.cap-grid,
+.why-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.cap-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  padding-bottom: 18px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.cap-media {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.cap-media img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.2s ease;
+  will-change: transform;
+}
+
+.cap-card:hover .cap-media img {
+  transform: scale(1.1);
+}
+
+.cap-card:hover {
+  border-color: var(--candy-teal);
+  box-shadow: 0 6px 18px rgba(47, 168, 166, 0.12);
+  transform: translateY(-3px);
+}
+
+.cap-name {
+  margin: 16px 16px 8px;
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.35;
+  color: var(--candy-ink);
+  text-align: center;
+}
+
+.cap-card p {
+  margin: 0 16px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--muted);
+  text-align: justify;
+}
+
+.why-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 20px 18px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.why-card:hover {
+  border-color: var(--candy-teal);
+  box-shadow: 0 6px 18px rgba(47, 168, 166, 0.12);
+  transform: translateY(-3px);
+}
+
+.why-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.why-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+}
+
+.why-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* hover 卡片时，图标以左下角为支点做持续的小幅度摆动 */
+.why-card:hover .why-icon {
+  transform-origin: left bottom;
+  animation: why-icon-sway 1.5s ease-in-out infinite;
+}
+
+@keyframes why-icon-sway {
+  0%,
+  100% {
+    transform: rotate(-8deg);
+  }
+  50% {
+    transform: rotate(8deg);
+  }
+}
+
+.why-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 750;
+  line-height: 1.3;
+  color: var(--candy-ink);
+}
+
+.why-card p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--muted);
+  text-align: justify;
+}
+
+/* 创意标签云 */
+.tag-cloud {
+  overflow: hidden;
+  margin: 0 0 24px;
+}
+
+/* 标签云滚动轨道：单行不换行，内容复制一份；translateX(0 → -50%) 使内容持续向左无缝缓滚 */
+.tag-cloud-track {
+  display: flex;
+  flex-wrap: nowrap;
+  width: max-content;
+  gap: 12px;
+  animation: tag-cloud-scroll 50s linear infinite;
+  will-change: transform;
+}
+
+@keyframes tag-cloud-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--candy-ink);
+  background: var(--surface);
+  border: 2px solid var(--candy-teal);
+}
+
+.tag:nth-child(even) {
+  border-color: var(--candy-yellow-deep);
+}
+
+.tag:nth-child(3n) {
+  border-color: var(--candy-coral);
+}
+
+/* 首页 FAQ：flex 竖向问答（每条左侧青条标识，非卡片） */
+.home-faq {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.home-faq > div {
+  padding-left: 16px;
+  border-left: 3px solid var(--candy-teal);
+}
+
+.home-faq dt {
+  font-family: var(--candy-font);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--candy-ink);
+  margin: 0 0 6px;
+}
+
+.home-faq dd {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--muted);
+  text-align: justify;
+}
+
+/* CTA */
+/* 全屏宽 CTA 横幅：背景通栏，内容由 .story-content 居中约束 */
+.cta-banner {
+  margin-top: 56px;
+  text-align: center;
+  background: linear-gradient(135deg, #246177 0%, #26c0b9 100%);
+  padding: 40px 0;
+}
+
+.cta-text {
+  margin: 0 0 6px;
+  font-size: 17px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.cta-big {
+  margin: 0 0 22px;
+  font-family: Tilt Neon, "Tilt Neon Fallback: Arial", sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  color: #ffe62f;
+}
+
+.cta-btn {
+  display: inline-block;
+  padding: 13px 34px;
+  border-radius: 999px;
+  background: var(--candy-yellow);
+  color: var(--candy-ink-warm);
+  font-size: 16px;
+  font-weight: 800;
+  font-family: inherit;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 0 var(--candy-yellow-deep);
+}
+
+.cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--candy-yellow-deep);
+}
+
+.cta-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 var(--candy-yellow-deep);
+}
+
+/* CTA 动作行：可放多个 .cta-btn（首页介绍区 / 分类页共用） */
+.cta-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* 响应式 */
+@media (max-width: 900px) {
+  .cap-grid,
+  .why-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .story-lead {
+    gap: 20px;
+  }
+
+  .story-lead-chips {
+    grid-template-columns: repeat(2, 1fr); /* 移动端每行 2 个 */
+  }
+
+  .story-section--band {
+    padding: 28px 0 24px;
+  }
+
+  .band-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cap-grid,
+  .why-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .story-title {
+    font-size: 22px;
+  }
+
+  .cta-big {
+    font-size: 24px;
+  }
+
+  /* 全屏相册移动端 */
+  .photo-gallery {
+    padding: 20px 12px;
+  }
+
+  .photo-gallery__stage img {
+    max-height: 46vh;
+  }
+
+  /* 移动端时间线照片一行一张 */
+  .timeline-photos {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-gallery__nav {
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+  }
+
+  .photo-gallery__nav--prev {
+    left: 8px;
+  }
+
+  .photo-gallery__nav--next {
+    right: 8px;
+  }
+
+  .photo-gallery__counter {
+    top: 22px;
+    left: 18px;
+  }
+}
+
+/* ---- Game Page ---- */
+
+.game-page {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 26px; /* 游戏页底部留白（所有游戏页共用） */
+}
+
+.game-header {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 16px 20px 12px;
+  flex-shrink: 0;
+}
+
+/* 游戏区域：80% 宽、16:9 比例，与摄像头采集分辨率（16:9）一致，避免视频留黑边；SSR 预占空间 */
+.game-area {
+  width: 80%;
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
+}
+
+/* 窄屏（<768px）改为 2:3，适配竖屏手机 */
+@media (max-width: 767px) {
+  .game-area {
+    aspect-ratio: 2 / 3;
+  }
+}
+
+.game-area .stage {
+  width: 100%;
+  height: 100%;
+}
+
+.game-area .level-screen {
+  width: 100%;
+  height: 100%;
+  flex: none;
+  padding: 20px;
+  gap: 16px;
+}
+
+.game-area .game-loading {
+  height: 100%;
+  padding: 0;
+}
+
+/* 调试控制面板（展开于游戏区域下方；由舞台左上角 Debug 按钮开合） */
+.game-control {
+  width: 80%;
+  margin: 14px auto 0;
+}
+
+.game-header .game-title {
+  font-size: 38px;
+  font-family: Tilt Neon, "Tilt Neon Fallback: Arial", sans-serif;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #00bfba;
+}
+
+.game-desc {
+  font-size: 15px;
+  color: #007e7b;
+  margin: 10px auto 0;
+  line-height: 1.6;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 12px 18px;
+}
+
+.game-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.game-loading .spinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  margin: 0 auto 16px;
+  animation: spin 0.9s linear infinite;
+}
+
+.game-loading p {
+  color: var(--muted);
+  font-size: 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- 关卡界面（通关恭喜 / 路线图 / 下一关要求预览） ---- */
+/* 关卡界面专属样式（.level-screen-card / .level-complete-* / .level-map-* / .scoreHud 等）已拆到
+   assets/css/pinch-pop-bubbles.css，由游戏页按需导入。此处仅保留两个游戏共用的 .level-screen 与 .level-btn。 */
+
+.level-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 40px 20px;
+}
+
+/* 卡通糖果按钮（平台级）：圆角 + 3px 粗描边 + 硬实偏移阴影 + 按压下压 */
+.level-btn {
+  --btn-fill: #ffffff;
+  --btn-deep: var(--candy-teal-deep);
+  padding: 12px 34px;
+  border-radius: 16px;
+  font-size: 17px;
+  font-weight: 700;
+  font-family: var(--candy-font);
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  border: 3px solid var(--btn-deep);
+  background: var(--btn-fill);
+  color: var(--candy-ink);
+  box-shadow: 0 5px 0 var(--btn-deep);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s,
+    border-color 0.2s;
+}
+
+.level-btn:hover {
+  transform: scale(1.04);
+  background: color-mix(in srgb, var(--btn-fill) 88%, #ffffff);
+}
+
+.level-btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--btn-deep);
+}
+
+.level-btn--primary {
+  --btn-fill: var(--candy-teal);
+  --btn-deep: var(--candy-teal-deep);
+}
+
+.level-btn--secondary {
+  --btn-fill: var(--candy-yellow);
+  --btn-deep: var(--candy-yellow-deep);
+  color: var(--candy-ink-warm);
+}
+
+/* ---- 游戏通用「开始/重开」按钮底图（2026-09-06） ----
+   New Game / Play Again / Start / Restart 一类按钮统一以
+   public/game-common-ui/bg-new-game-button.png（300×86 橙底按钮板，透明）作背景，
+   去掉各自糖果按钮的描边/实底/阴影；文字颜色沿用各按钮原有色（多为深棕 warm-ink，板上可读）。
+   Retry 按钮已归入下一条 continue 家族（2026-09-06 用户改派 bg-continue-button.png）。
+   !important 保证压过各游戏 css（加载顺序晚于 main.css）。加 class="btn-plate-newgame" 即启用 */
+.btn-plate-newgame {
+  background-color: transparent !important;
+  background-image: url("/game-common-ui/bg-new-game-button.png") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.btn-plate-newgame:hover,
+.btn-plate-newgame:active {
+  background-color: transparent !important; /* 防 hover 的 color-mix 底色透过/覆盖底图 */
+}
+
+/* ---- 游戏通用「继续/回首页」按钮底图（2026-09-06） ----
+   Continue / Next Level / Retry / Home 一类按钮统一以
+   public/game-common-ui/bg-continue-button.png（280×107 蓝底按钮板，透明）作背景，
+   去掉各自糖果按钮的描边/实底/阴影；蓝底上文字统一改白色（原深棕/白字在蓝底上均不可读）。
+   !important 保证压过各游戏 css（加载顺序晚于 main.css）。加 class="btn-plate-continue" 即启用 */
+.btn-plate-continue {
+  background-color: transparent !important;
+  background-image: url("/game-common-ui/bg-continue-button.png") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+
+.btn-plate-continue:hover,
+.btn-plate-continue:active {
+  background-color: transparent !important; /* 防 hover 的 color-mix 底色透过/覆盖底图 */
+  color: #ffffff !important;
+}
+
+/* ---- 游戏内「取消/保存」按钮底图（2026-09-06） ----
+   Settings 弹窗里的 Cancel 统一以 public/game-common-ui/bg-no.png（280×107 金底按钮板，透明）作背景，
+   Save 统一以 public/game-common-ui/bg-yes.png（280×107 蓝底按钮板，透明）作背景，
+   去掉各自糖果按钮的描边/实底/阴影。金板上文字沿用原有深黄褐（可读，同 btn-plate-newgame 约定）；
+   蓝板上文字强制白色（同 btn-plate-continue 约定）。
+   !important 保证压过各游戏 css（加载顺序晚于 main.css）。加 class="btn-plate-no" / "btn-plate-yes" 即启用 */
+.btn-plate-no {
+  background-color: transparent !important;
+  background-image: url("/game-common-ui/bg-no.png") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.btn-plate-no:hover,
+.btn-plate-no:active {
+  background-color: transparent !important; /* 防 hover 的 color-mix 底色透过/覆盖底图 */
+}
+
+.btn-plate-yes {
+  background-color: transparent !important;
+  background-image: url("/game-common-ui/bg-yes.png") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+
+.btn-plate-yes:hover,
+.btn-plate-yes:active {
+  background-color: transparent !important; /* 防 hover 的 color-mix 底色透过/覆盖底图 */
+  color: #ffffff !important;
+}
+
+/* ---- 游戏内菜单卡片 / 弹出面板底图（2026-09-06） ----
+   首页菜单卡（已点名 .hc-home / .level-screen-card(home) / .bb-home）与各游戏全部「弹出面板」
+   （结算弹框 / 关卡预览·完成卡 / 教学·暂停卡 / 设置弹窗）统一以米黄描金菜单板作底：
+   横板（宽>高）用 public/game-common-ui/bg-menus.png（940×665），
+   竖板（高>宽）用 public/game-common-ui/bg-menus-col.png（600×846）。
+   替换原深青实底 + 粗描边 + 硬阴影 + 磨砂；板浅米黄，内文从白/黄改为深褐可读色
+   （title 深棕 #3a2413 / 副文案深褐 / accent 焦糖 #8a5a1a / 点缀深金 #c8960c），并去掉白字投影。
+   加 class="plate-menus"（横）或 class="plate-menus-col"（竖）即启用，
+   !important 压过各游戏晚加载 css。 */
+.plate-menus,
+.plate-menus-col {
+  background-color: transparent !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  color: rgba(58, 36, 19, 0.9) !important;
+}
+
+.plate-menus {
+  background-image: url("/game-common-ui/bg-menus.png") !important;
+}
+
+.plate-menus-col {
+  background-image: url("/game-common-ui/bg-menus-col.png") !important;
+}
+
+/* ① 主菜单卡（.hc-home / .bb-home / LevelHome 的 .level-screen-card） */
+.plate-menus .hc-home-title,
+.plate-menus .bb-home-title,
+.plate-menus .level-screen-title {
+  color: #3a2413 !important;
+  text-shadow: none !important;
+}
+
+.plate-menus .hc-home-hint,
+.plate-menus .bb-home-hint {
+  color: rgba(58, 36, 19, 0.85) !important;
+  text-shadow: none !important;
+}
+
+.plate-menus .hc-home-sub,
+.plate-menus .bb-home-sub {
+  color: #8a5a1a !important;
+  text-shadow: none !important;
+}
+
+.plate-menus .level-home-tips {
+  color: rgba(58, 36, 19, 0.9) !important;
+}
+
+/* ② 结果结算弹框（hc / bb / fr / swat 的 win·lose 面板，均横板） */
+.plate-menus .hc-panel-title,
+.plate-menus .bb-panel-title,
+.plate-menus .fr-panel-title,
+.plate-menus .swat-panel-title {
+  color: #3a2413 !important;
+  text-shadow: none !important;
+}
+
+.plate-menus .hc-panel-sub,
+.plate-menus .bb-panel-sub,
+.plate-menus .fr-panel-sub,
+.plate-menus .swat-panel-sub {
+  color: rgba(58, 36, 19, 0.88) !important;
+  text-shadow: none !important;
+}
+
+.plate-menus .bb-panel-tip,
+.plate-menus .fr-panel-tip,
+.plate-menus .swat-panel-tip {
+  color: #8a5a1a !important;
+  text-shadow: none !important;
+}
+
+.plate-menus .fr-panel-star {
+  color: rgba(58, 36, 19, 0.22) !important;
+  text-shadow: none !important;
+}
+
+.plate-menus .fr-panel-star--on {
+  color: #c8960c !important;
+  text-shadow: none !important;
+}
+
+.plate-menus .hc-panel-dish {
+  border-color: rgba(58, 36, 19, 0.18) !important;
+  box-shadow: 0 10px 26px rgba(58, 36, 19, 0.22) !important;
+}
+
+/* ③ pinch 关卡前预览卡（LevelIntro 的 .level-screen-card，横板） */
+.plate-menus .level-difficulty-label,
+.plate-menus .level-condition-label {
+  color: #3a2413 !important;
+  border-bottom-color: rgba(138, 90, 26, 0.5) !important;
+}
+
+.plate-menus .level-condition-line {
+  color: #3a2413 !important;
+}
+
+.plate-menus .level-condition-sep {
+  color: #8a5a1a !important;
+}
+
+.plate-menus .level-intro-countdown {
+  color: rgba(58, 36, 19, 0.6) !important;
+}
+
+.plate-menus .level-star {
+  color: #c8960c !important;
+  text-shadow: none !important;
+}
+
+.plate-menus .level-star--half {
+  color: rgba(58, 36, 19, 0.28) !important;
+}
+
+.plate-menus .level-star--half::after {
+  color: #c8960c !important;
+}
+
+/* ④ pinch 通关弹窗（LevelComplete 的 .level-complete-popup，横板） */
+.plate-menus .level-complete-score {
+  color: #3a2413 !important;
+  text-shadow: none !important;
+}
+
+.plate-menus .level-complete-next-label {
+  color: rgba(58, 36, 19, 0.75) !important;
+  text-shadow: none !important;
+}
+
+/* ⑤ 设置弹窗（pinch .settings-dialog / gem .gem-settings-dialog，竖板，用户 2026-09-06 点改） */
+.plate-menus-col .settings-title,
+.plate-menus-col .gem-settings-title {
+  color: #3a2413 !important;
+  text-shadow: none !important;
+}
+
+.plate-menus-col .settings-group-label,
+.plate-menus-col .gem-settings-group-label {
+  color: #8a5a1a !important;
+}
+
+.plate-menus-col .settings-radio {
+  color: rgba(58, 36, 19, 0.9) !important;
+  background: rgba(58, 36, 19, 0.05) !important;
+}
+
+.plate-menus-col .settings-radio:hover {
+  background: rgba(58, 36, 19, 0.1) !important;
+}
+
+.plate-menus-col .gem-settings-knife-option {
+  background: rgba(58, 36, 19, 0.04) !important;
+}
+
+.plate-menus-col .gem-settings-knife-option--selected {
+  background: rgba(200, 150, 12, 0.18) !important;
+}
+
+/* ⑥ 竖板（高>宽）弹框：fr 三步教学卡 / gem 暂停卡 */
+.plate-menus-col .fr-tutorial-title,
+.plate-menus-col .gem-slash-pause-title {
+  color: #3a2413 !important;
+  text-shadow: none !important;
+}
+
+.plate-menus-col .fr-tutorial-step {
+  color: rgba(58, 36, 19, 0.55) !important;
+}
+
+.plate-menus-col .fr-tutorial-text {
+  color: rgba(58, 36, 19, 0.92) !important;
+  text-shadow: none !important;
+}
+
+.plate-menus-col .fr-tutorial-wrong {
+  color: #c2543c !important;
+  text-shadow: none !important;
+}
+
+.plate-menus-col .fr-arrow {
+  color: #c8960c !important;
+  text-shadow: none !important;
+}
+
+/* ---- 游戏页玩法说明区（游戏区域下方、footer 上方，需滚动查看） ---- */
+
+/* 深青带背景通栏（同首页 .story-section--band 形态）；文字内容限宽在子元素（见下） */
+.game-howto {
+  margin: 20px 0 0;
+  font-size: 16px;
+  color: #ffe62f;
+  line-height: 1.6;
+  text-align: justify;
+  background: rgba(31, 138, 134, 0.96);
+  padding: 14px 0 12px;
+}
+
+.game-howto-title {
+  font-family: var(--candy-font);
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 8px;
+  letter-spacing: 0.3px;
+}
+
+.game-howto p {
+  margin: 4px 0;
+}
+
+/* 带内文字列与首页文字区同宽（.story-content：max-width 1200px 居中 + 左右 20px），背景保持通栏 */
+.game-howto-title,
+.game-howto p {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* ---- 游戏页文章区（玩法说明区下方、footer 上方，SEO 长文） ---- */
+
+/* 白底长文：整块限宽到与首页文字区同列（width:100% + max-width 1200px 居中，同 .games/.story-content 写法） */
+.game-article {
+  width: 100%;
+  max-width: 1200px;
+  margin: 24px auto 0;
+  padding: 0 20px;
+  text-align: left;
+  color: var(--candy-ink);
+}
+
+.game-article h2 {
+  font-family: var(--candy-font);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--candy-teal-deep);
+  margin: 30px 0 10px;
+  letter-spacing: 0.3px;
+}
+
+.game-article h2:first-child {
+  margin-top: 0;
+}
+
+.game-article h3 {
+  font-family: var(--candy-font);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--candy-ink);
+  margin: 20px 0 8px;
+  letter-spacing: 0.2px;
+}
+
+.game-article p {
+  margin: 8px 0;
+  line-height: 1.7;
+}
+
+.game-article ol,
+.game-article ul {
+  margin: 8px 0;
+  padding-left: 24px;
+  line-height: 1.7;
+}
+
+.game-article li {
+  margin: 4px 0;
+}
+
+.game-article strong {
+  color: var(--candy-teal-deep);
+}
+
+.game-article-faq {
+  margin: 8px 0 0;
+}
+
+.game-article-faq > div {
+  margin: 14px 0;
+}
+
+.game-article-faq dt {
+  font-family: var(--candy-font);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--candy-ink);
+  margin: 0 0 4px;
+}
+
+.game-article-faq dd {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.btn {
+  padding: 9px 16px;
+  border-radius: 12px;
+  font-family: var(--candy-font);
+  font-size: 14px;
+  font-weight: 700;
+  background: var(--candy-teal);
+  color: var(--candy-ink);
+  border: 3px solid var(--candy-teal-deep);
+  box-shadow: 0 3px 0 var(--candy-teal-deep);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s;
+}
+
+.btnSmall {
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.btn:hover {
+  background: #8ff0ec;
+  transform: scale(1.05);
+}
+
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--candy-teal-deep);
+}
+
+.stage {
+  position: relative;
+  background: #0f172a;
+  border: none;
+  border-radius: 16px;
+  overflow: hidden;
+  /* 游戏背景图，由 GameClient 通过 --game-bg 注入（随机轮换 7 张 1920×1080 背景） */
+  --game-bg: url("/pinch-pop-bubbles/game-bg.webp");
+}
+
+/* 摄像头画面关闭时，用游戏背景图替代深色底 */
+.stage--no-video {
+  background: #0f172a var(--game-bg) center / cover no-repeat;
+}
+
+#video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000000;
+  transform: scaleX(-1);
+}
+
+/* Fullscreen: browser handles positioning, we just clean up styling */
+.stage--fullscreen {
+  border-radius: 0;
+  border: none;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+.stage--fullscreen #video {
+  object-fit: cover;
+}
+
+/* 窄屏（<768px，竖屏）时视频也填充整个舞台，与游戏内容区域一致 */
+@media (max-width: 767px) {
+  #video {
+    object-fit: cover;
+  }
+}
+
+.stage--fullscreen .hand-canvas,
+.stage--fullscreen .game-canvas {
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+.hand-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
+
+.loading[hidden] {
+  display: none !important;
+}
+
+.loadingInner {
+  max-width: 520px;
+  text-align: center;
+  background: rgba(31, 138, 134, 0.96);
+  border: 3px solid var(--candy-yellow);
+  border-radius: 20px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+  padding: 18px 20px 16px;
+  color: #ffffff;
+}
+
+.spinner {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: var(--candy-yellow);
+  margin: 0 auto 10px;
+  animation: spin 0.9s linear infinite;
+}
+
+.loadingTitle {
+  font-weight: 750;
+  margin-bottom: 6px;
+  color: #ffffff;
+}
+
+.loadingText {
+  font-size: 12px;
+  color: rgba(229, 231, 235, 0.85);
+  line-height: 1.5;
+}
+
+.loadingActions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.control-panel {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.control-panel-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.control-panel-col--info {
+  flex: 1;
+  min-width: 0;
+  padding-right: 12px;
+  border-right: 1px solid var(--border);
+}
+
+.control-panel-col--log {
+  flex: 0 0 40%;
+  min-width: 0;
+}
+
+.control-panel-title {
+  font-weight: 650;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+
+.log-toolbar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.log-btn {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.log-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.log {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px;
+}
+
+.statusCard {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.gestureHeader {
+  margin-bottom: 10px;
+}
+
+.gestureName {
+  font-size: 18px;
+  font-weight: 750;
+  letter-spacing: 0.2px;
+  color: var(--text);
+}
+
+.gestureSub {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px;
+  min-height: 56px;
+}
+
+.metricLabel {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.metricValue {
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--text);
+}
+
+.delegate-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.delegate-switch-btn {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.delegate-switch-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.cameraRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.cameraControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 250px;
+  max-width: 280px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.dropBtn:hover {
+  border-color: var(--accent);
+}
+
+.dropBtn:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.dropText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  flex: 1;
+}
+
+.dropCaret {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.dropMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  left: 0;
+  z-index: 5;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 14px 50px rgba(0, 0, 0, 0.12);
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.dropItem {
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.dropItem:hover {
+  background: var(--accent-soft);
+}
+
+.dropMeta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.fingers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-start;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.fingerPill {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.fingerOn {
+  border-color: rgba(22, 163, 74, 0.5);
+  color: var(--ok);
+}
+
+.fingerOff {
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 10px 0;
+}
+
+/* ---- Game Canvas ---- */
+
+.game-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Promote the video and overlay canvases to their own GPU layers
+   for smoother compositing at 60fps. */
+#video,
+.hand-canvas,
+.game-canvas {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Score HUD（.scoreHud*）与通关提示（.pass-hint*）为 Motion Bubble Shooter 专属，已拆到
+   assets/css/pinch-pop-bubbles.css，由游戏页按需导入。 */
+
+/* ---- Bottom-left Buttons (over video, dark) ---- */
+
+.fullscreen-btn,
+.video-btn {
+  position: absolute;
+  left: 12px;
+  z-index: 5;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 2px solid var(--candy-teal-deep);
+  color: var(--candy-ink);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--candy-font);
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--candy-teal-deep);
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.2s,
+    background 0.2s;
+}
+
+.fullscreen-btn {
+  bottom: 12px;
+  z-index: 7; /* 高于 .stage-overlay(6)，保证全屏开关在所有界面上始终可点 */
+}
+
+.video-btn {
+  bottom: 52px;
+}
+
+.fullscreen-btn:hover,
+.video-btn:hover {
+  background: var(--candy-teal);
+  transform: scale(1.05);
+}
+
+.fullscreen-btn:active,
+.video-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--candy-teal-deep);
+}
+
+/* 图标按钮（全屏 / 摄像头开关）：正方形图标，去掉文字 */
+.icon-btn {
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.icon-btn img {
+  width: 18px;
+  height: 18px;
+  display: block;
+  object-fit: contain;
+}
+
+/* ---- 左下角圆形工具按钮底图（2026-09-06） ----
+   所有游戏左下角的圆形小按钮（全屏开关 .fullscreen-btn / 摄像头画面开关 .video-btn /
+   骨架开关 .skeleton-btn / pinch-pop 抓取方式切换 .grab-mode-btn，均为 icon 正圆钮）
+   统一以 public/game-common-ui/bg-left-tool-round-button.png（90×90 橙色圆钮板）作背景，
+   去掉各自的白底/青描边/糖果阴影；按钮统一 46×46 正圆。各游戏 css 晚于 main.css 加载，
+   故此处背景/描边/尺寸等全部用 !important 压过（放于 .icon-btn img 之后，图标尺寸同权重后声明覆盖）。
+   竖向叠放改为「钮间 12px 间距」：fullscreen bottom 12、video bottom 70（上沿 58 + 12）、
+   skeleton / grab-mode bottom 128（上沿 116 + 12），避免原 40px 步距（针对约 38px 高钮设计）
+   与新 46px 高度互相重叠。 */
+.fullscreen-btn,
+.video-btn,
+.skeleton-btn,
+.grab-mode-btn {
+  width: 46px !important;
+  height: 46px !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none !important;
+  border-radius: 50% !important;
+  background-color: transparent !important;
+  background-image: url("/game-common-ui/bg-left-tool-round-button.png") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+  box-shadow: none !important;
+}
+
+/* 三档底部定位：从容器底边往上依次 fullscreen → video → skeleton/grab-mode，各留 12px 空档 */
+.fullscreen-btn {
+  bottom: 12px !important;
+}
+
+.video-btn {
+  bottom: 70px !important;
+}
+
+.skeleton-btn,
+.grab-mode-btn {
+  bottom: 128px !important;
+}
+
+/* 工具钮内图标放大到 24px 并转成纯白色：原有图标为青蓝剪影（91,162,160），
+   brightness(0) 把不透明像素压成黑、invert(1) 再反成白（透明处不受影响），
+   白图标叠在橙色板上清晰可读；各状态图本身的轮廓区分保留。 */
+.fullscreen-btn img,
+.video-btn img,
+.skeleton-btn img,
+.grab-mode-btn img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  display: block;
+}
+
+/* ---- 右上角「设置」齿轮钮底图（2026-09-07） ----
+   各游戏设置弹窗的开启钮（pinch .settings-btn / gem .gem-settings-btn，均为 icon-btn 正圆钮，
+   内含 stroke=currentColor 的齿轮 SVG）统一以 public/game-common-ui/bg-setting.png（86×87 蓝色高光圆板，透明角）作背景，
+   去掉各自的白底/青描边/糖果阴影。齿轮随按钮 color 转纯白（currentColor，蓝板上可读，同 left-tool 白图标约定）。
+   各游戏 css 晚于 main.css 加载，故背景/描边/颜色全用 !important 压过。 */
+.settings-btn,
+.gem-settings-btn {
+  border: none !important;
+  border-radius: 50% !important;
+  background-color: transparent !important;
+  background-image: url("/game-common-ui/bg-setting.png") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+
+.settings-btn:hover,
+.settings-btn:active,
+.gem-settings-btn:hover,
+.gem-settings-btn:active {
+  background-color: transparent !important; /* 防 hover/active 的青底色透过覆盖底图 */
+  color: #ffffff !important;
+}
+
+/* Hide the camera feed (keep it composited so tracking still works) */
+.video-hidden {
+  opacity: 0;
+}
+
+/* ---- 关卡覆盖层（intro / win / summary，覆盖在舞台上方） ---- */
+/* 覆盖 video/画布/HUD/video 按钮（z-index 5），但低于全屏按钮（z-index 7） */
+.stage-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  /* 磨砂玻璃：虚化并泛一层青绿，让弹框更突出 */
+  background: rgba(123, 229, 224, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: auto;
+}
+
+/* Result Overlays（.resultOverlay*，当前未使用）为 Motion Bubble Shooter 专属，已拆到
+   assets/css/pinch-pop-bubbles.css，由游戏页按需导入。 */
+
+/* ---- Media Queries ---- */
+
+@media (max-width: 767px) {
+  .menu-btn {
+    display: flex;
+  }
+
+  /* 侧栏变为左侧抽屉：默认收起（translateX(-100%)），.side-nav--open 滑出 */
+  .side-nav {
+    display: block;
+    width: 240px;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
+    box-shadow: none;
+  }
+
+  .side-nav:hover {
+    width: 240px;
+    box-shadow: none;
+  }
+
+  .side-nav--open {
+    transform: translateX(0);
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.12);
+  }
+
+  .side-nav .nav-label {
+    opacity: 1;
+  }
+
+  .drawer-backdrop {
+    display: block;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 19;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .main-area {
+    margin-left: 0;
+  }
+
+  .header-tagline {
+    display: none;
+  }
+}
+
+@media (max-width: 980px) {
+  .control-panel {
+    flex-direction: column;
+  }
+
+  .control-panel-col--info {
+    flex: none;
+    padding-right: 0;
+    padding-bottom: 12px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .log {
+    flex: none;
+    height: 300px;
+  }
+}
+
+/* ---- 游戏设置：关卡主菜单卡片右上角齿轮按钮 ---- */
+
+.game-settings {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
+.settings-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 2px solid var(--candy-teal-deep);
+  color: var(--candy-ink);
+  box-shadow: 0 3px 0 var(--candy-teal-deep);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s;
+}
+
+.settings-btn:hover {
+  background: var(--candy-teal);
+  transform: scale(1.06);
+}
+
+.settings-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--candy-teal-deep);
+}
+
+.settings-btn-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---- 游戏设置弹框（渲染在 .game-settings 内，位于 .stage 全屏子树中） ----
+   position: fixed 因祖先 .stage-overlay 的 backdrop-filter 而相对其定位，
+   inset:0 正好铺满整个游戏舞台，普通 / 全屏模式下均覆盖游戏画面。 */
+
+.settings-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.settings-dialog {
+  width: 100%;
+  max-width: 420px;
+  background: #1f8a86;
+  border: 4px solid var(--candy-teal);
+  border-radius: 20px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: #ffffff;
+}
+
+.settings-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  text-align: center;
+  color: #ffffff;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-group-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--candy-yellow);
+}
+
+.settings-radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.settings-radio:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.settings-radio input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--candy-yellow);
+  cursor: pointer;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+/* 游戏内抓取方式切换提示（.grab-hint*）为 Motion Bubble Shooter 专属，已拆到
+   assets/css/pinch-pop-bubbles.css；Gem Slash 全部专属样式（.gem-slash-* 等）已拆到
+   assets/css/gem-slash.css。均随对应游戏页按需导入。 */
+
+/* ---- 卡通动效（平台级）：弹入 overshoot + 下滑提示 + 减少动效降级 ---- */
+
+@keyframes candy-pop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes candy-slide-down {
+  0% {
+    transform: translateY(-130%);
+  }
+  70% {
+    transform: translateY(6px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* 操作系统的「减少动效」偏好：关掉弹入 / 缩放 / 下压动画，只保留必要的淡入淡出 */
+@media (prefers-reduced-motion: reduce) {
+  .level-btn,
+  .icon-btn,
+  .fullscreen-btn,
+  .video-btn,
+  .btn,
+  .stage-overlay,
+  .loading {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+}
+
+/* 工具类：story-section-lead / band-text / timeline-text 的 p 统一左侧缩进 6px */
+.p-margin-left-6px {
+  margin-left: 6px;
+}

@@ -1,0 +1,594 @@
+/* ---- Motion Bubble Shooter 游戏专用样式（内部目录名 pinch-pop-bubbles） ----
+   由 app/pages/games/motion-bubble-shooter-play-the-gesture-based-bubble-shooting-game.vue 按需导入（随该路由代码分割，仅进入游戏页时加载）。
+   平台级 / 共用样式（.stage / .loading / .control-panel / .level-btn / .level-screen 等）仍在 assets/css/main.css。 */
+
+/* ---- 关卡界面（通关恭喜 / 路线图 / 下一关要求预览） ---- */
+
+.level-screen-card {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 30px;
+  text-align: center;
+  background: #1f8a86;
+  border: 6px solid var(--candy-teal);
+  border-radius: 22px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+  animation: candy-pop 0.28s ease;
+}
+
+.level-screen-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+/* 关卡预览弹框（深紫底）内的顶部标题用纯白色 */
+.level-screen-card .level-screen-title {
+  color: #ffffff;
+}
+
+/* ---- 关卡完成弹窗（深青底 #1f8a86 + 浅青描边 + 顶部飘带） ---- */
+
+.level-complete-popup {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  margin-top: 40px;
+  background: #1f8a86;
+  border: 6px solid var(--candy-teal);
+  border-radius: 22px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+  animation: candy-pop 0.28s ease;
+}
+
+/* 飘带：绝对定位，顶部居中，超出弹窗上边框 36px，4:1 宽高比 */
+.level-complete-ribbon {
+  position: absolute;
+  top: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  aspect-ratio: 4 / 1;
+  background: url("/pinch-pop-bubbles/yellow-bell.webp") center / 100% 100% no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.level-complete-ribbon-text {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.level-complete-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 80px 30px 30px;
+  text-align: center;
+}
+
+.level-complete-trophy-wrap {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  z-index: 0;
+}
+
+.level-complete-trophy {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  z-index: 1;
+}
+
+.level-confetti {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+  border-radius: 1px;
+  pointer-events: none;
+  opacity: 0;
+  animation: confetti-burst var(--dur) ease-out infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes confetti-burst {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(0.4);
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty)))
+      rotate(var(--rot)) scale(1);
+    opacity: 0;
+  }
+}
+
+.level-complete-score {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.level-complete-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 两端对齐：左侧再玩一次，右侧 Continue */
+  width: 100%;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.level-replay-btn {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--candy-yellow-deep);
+  border-radius: 14px;
+  background: var(--candy-yellow);
+  box-shadow: 0 4px 0 var(--candy-yellow-deep);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s;
+}
+
+.level-replay-btn:hover {
+  background: #fbf878;
+  transform: scale(1.06);
+}
+
+.level-replay-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--candy-yellow-deep);
+}
+
+.level-replay-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.level-complete-next-label {
+  align-self: flex-end; /* 居右，与右侧 Continue 按钮对齐 */
+  margin-top: -8px; /* 收紧与按钮行之间的间距 */
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ---- 关卡预览（难度 / 星级 / 过关条件 / 倒计时） ---- */
+
+.level-difficulty {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.level-difficulty-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  padding-bottom: 4px;
+  border-bottom: solid 2px var(--candy-yellow);
+}
+
+.level-stars {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.level-star {
+  display: inline-block;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--candy-yellow);
+}
+
+.level-star--half {
+  position: relative;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.level-star--half::after {
+  content: "★";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50%;
+  overflow: hidden;
+  color: var(--candy-yellow);
+}
+
+.level-condition {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.level-condition-label {
+  align-self: flex-start;
+  margin-bottom: 2px;
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  padding-bottom: 4px;
+  border-bottom: solid 2px var(--candy-yellow);
+}
+
+.level-condition-line {
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.level-condition-sep {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--candy-yellow);
+}
+
+.level-intro-countdown {
+  align-self: flex-end;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.level-intro-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* ---- 关卡首页（玩法提示 + 按钮） ---- */
+
+.level-home-tips {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.level-home-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* 窄屏（<768px）时首页按钮上下排列 */
+@media (max-width: 767px) {
+  .level-home-actions {
+    flex-direction: column;
+  }
+}
+
+/* ---- 关卡路线图（SVG 节点 + 汇总页） ---- */
+
+.level-map-svg {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+}
+
+.level-map-line {
+  stroke: var(--border);
+  stroke-width: 4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* 奖杯图片节点：未解锁的关卡去色 + 半透明 */
+.level-node--locked {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+/* 当前关卡的外圈高亮 */
+.level-node-ring {
+  fill: none;
+  stroke: var(--candy-yellow);
+  stroke-width: 4;
+}
+
+.level-map-num {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.level-map-check {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+/* 路线图汇总页：顶部中间游戏名称，左侧白色「Level Progress」标题 */
+.level-map-screen {
+  position: relative;
+}
+
+.level-map-game-title {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.level-map-progress-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 400;
+  color: #ffffff;
+}
+
+/* ---- 游戏内 HUD（顶部右侧小标签；当前未使用，历史遗留） ---- */
+
+.hud {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 12px;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+
+/* ---- Score HUD (over video, dark) ---- */
+
+.scoreHud {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 14px;
+  font-weight: 650;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  z-index: 5;
+  min-width: 160px;
+}
+
+.scoreHud-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.scoreHud-score {
+  font-weight: 700;
+}
+
+.scoreHud-pct {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  font-variant-numeric: tabular-nums;
+}
+
+.scoreHud-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+.scoreHud-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--candy-yellow), var(--candy-teal));
+  transition: width 0.25s ease;
+}
+
+/* 剩余泡泡数量（AND 模式需清空全部泡泡时显示） */
+.scoreHud-remaining {
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* ---- 通关提示（进入关卡时从顶部滑入，5 秒后滑出） ---- */
+
+.pass-hint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 8;
+  display: flex;
+  justify-content: center;
+  padding: 14px 16px 0;
+  pointer-events: none;
+  transform: translateY(-130%);
+  transition: transform 0.5s ease;
+}
+
+.pass-hint--visible {
+  transform: translateY(0);
+}
+
+.pass-hint-card {
+  max-width: 440px;
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: rgba(31, 138, 134, 0.95);
+  border: 3px solid var(--candy-yellow);
+  color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(8px);
+}
+
+.pass-hint-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--candy-yellow);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.pass-hint-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.pass-hint-note {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+}
+
+/* ---- 抓取方式切换按钮（左下角，原与全屏/摄像头按钮同组） ---- */
+
+.grab-mode-btn {
+  position: absolute;
+  left: 12px;
+  bottom: 92px;
+  z-index: 5;
+  padding: 8px; /* 对称内边距 → 正圆（原 8px 16px 横向加倍成椭圆/胶囊） */
+  border-radius: 50%; /* 正圆 */
+  background: rgb(255 255 255 / 86%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.grab-mode-btn:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgb(255 255 255 / 92%);
+}
+
+/* ---- Result Overlays (win / lose, over video, dark；当前未使用，历史遗留) ---- */
+
+.resultOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  pointer-events: auto;
+}
+
+.resultInner {
+  text-align: center;
+  background: rgba(31, 138, 134, 0.96);
+  border: 3px solid var(--candy-teal);
+  border-radius: 22px;
+  padding: 24px 32px;
+}
+
+.winTitle {
+  font-size: 28px;
+  font-weight: 750;
+  margin-bottom: 8px;
+  color: #4ade80;
+}
+
+.loseTitle {
+  font-size: 28px;
+  font-weight: 750;
+  margin-bottom: 8px;
+  color: #f87171;
+}
+
+.winScore,
+.loseScore {
+  font-size: 16px;
+  color: #e5e7eb;
+  margin-bottom: 16px;
+}
+
+/* ---- 游戏内抓取方式切换提示（从顶部滑入） ---- */
+
+.grab-hint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 8;
+  display: flex;
+  justify-content: center;
+  padding: 14px 16px 0;
+  pointer-events: none;
+  transform: translateY(-130%);
+  transition: transform 0.5s ease;
+}
+
+.grab-hint--visible {
+  transform: translateY(0);
+}
+
+.grab-hint-card {
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: rgba(31, 138, 134, 0.95);
+  border: 3px solid var(--candy-yellow);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
