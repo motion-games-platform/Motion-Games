@@ -3,7 +3,7 @@
 > A **pure-browser**, gesture-based bubble-shooter game: open your camera, grab a bubble with a **pinch** (or a **fist**), pull back to aim like a slingshot, then release by opening your fingers — pop same-colored bubbles and clear all 13 levels.
 > Open-sourced by [SwayJoy](https://swayjoy.com). This is a **single-game, single-page** app — no extra pages or routes.
 
-![game-bg](public/pinch-pop-bubbles/game-bg.webp)
+![overview](public/pinch-pop-bubbles/overview.webp)
 
 **Language**: English · [中文版（README.zh-CN.md）](README.zh-CN.md)
 

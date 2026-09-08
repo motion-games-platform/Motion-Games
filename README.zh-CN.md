@@ -3,7 +3,7 @@
 > 一款**纯浏览器运行**的手势体感泡泡射击游戏：打开摄像头，用「捏合 / 握拳」抓取泡泡、拉弓瞄准、张开手指发射，消除同色泡泡闯过 13 关。
 > 本项目由 [SwayJoy](https://swayjoy.com) 开源，**单游戏、单页面**，无其他多余页面与路由。
 
-![game-bg](public/pinch-pop-bubbles/game-bg.webp)
+![overview](public/pinch-pop-bubbles/overview.webp)
 
 **语言**：中文版 · [English（README.md）](README.md)
 
